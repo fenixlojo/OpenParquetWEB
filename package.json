@@ -10,7 +10,8 @@
     "test": "node --test test/*.test.mjs"
   },
   "dependencies": {
-    "@duckdb/duckdb-wasm": "^1.30.0"
+    "@duckdb/duckdb-wasm": "^1.30.0",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
     "vite": "^7.0.0"

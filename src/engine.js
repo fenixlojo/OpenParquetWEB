@@ -1,5 +1,6 @@
 import * as duckdb from "@duckdb/duckdb-wasm";
 import { executeSelect } from "./sql.js";
+import { exportCsv } from "./convert-sql.js";
 
 const files = new Map();
 let initialization;
@@ -161,5 +162,30 @@ export function closeFile(id) {
     const { db } = await engine();
     await db.dropFile(entry.filename);
     files.delete(id);
+  });
+}
+
+export function csvToParquet(file, options, progress = () => {}) {
+  return serial(async () => {
+    const { db, connection } = await engine();
+    const id = crypto.randomUUID().replaceAll("-", "");
+    const input = `convert_${id}.csv`,
+      output = `convert_${id}.parquet`;
+    try {
+      await db.registerFileHandle(
+        input,
+        file,
+        duckdb.DuckDBDataProtocol.BROWSER_FILEREADER,
+        true,
+      );
+      progress({ step: 1, label: "Comprimiendo datos como Parquet…" });
+      await exportCsv(connection, input, output, options);
+      progress({ step: 2, label: "Preparando el archivo para descargar…" });
+      const bytes = await db.copyFileToBuffer(output);
+      return new Blob([bytes], { type: "application/vnd.apache.parquet" });
+    } finally {
+      await db.dropFile(input).catch(() => {});
+      await db.dropFile(output).catch(() => {});
+    }
   });
 }

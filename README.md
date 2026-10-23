@@ -44,6 +44,20 @@ El primer build descarga la extensión Parquet desde `extensions.duckdb.org`, en
 - Celdas completas en un diálogo accesible con clic o Enter.
 - Valores formateados por DuckDB para conservar enteros grandes, decimales y fechas; estructuras anidadas se muestran como texto de DuckDB.
 
+## Generar Parquet a partir de CSV o Excel
+
+El botón **Generar Parquet**, junto a **Abrir archivo**, acepta `.csv`, `.tsv`, `.xlsx`, `.xls` y `.xlsm`. Elegí el archivo y, para Excel, la hoja. Indicá si la primera fila contiene nombres de columnas. Podés mantener todas las columnas como texto para conservar identificadores; de lo contrario DuckDB infiere los tipos sobre todos los datos.
+
+Los CSV reconocen separadores coma, punto y coma, tabulador y barra vertical a partir de su primera fila; usan comillas dobles estándar. Se puede elegir UTF-8 o Windows-1252. Cada conversión genera un Parquet con compresión ZSTD.
+
+La barra informa etapas reales (lectura, compresión, preparación de descarga y apertura), con avance indeterminado cuando no hay un porcentaje medible. Al terminar se solicita la descarga, se cierra el diálogo y el Parquet se abre automáticamente en el visor. El resumen conserva un enlace para descargar de nuevo y muestra tamaño original, tamaño final y ahorro en bytes y porcentaje. Si Parquet ocupa más, muestra **Aumento**. Para Excel se compara con el libro completo, aunque solo se exporta la hoja elegida.
+
+Se exportan valores, no formatos visuales, macros, gráficos ni todas las hojas juntas. Las filas totalmente vacías de Excel se omiten. Las fórmulas usan su resultado guardado, sin recalcularlas; se rechazan celdas de error y fórmulas sin un resultado utilizable detectado. Los números de Excel conservan la precisión disponible en el archivo; las fechas se exportan como valores de calendario, sin agregar zona horaria. Si necesitás mantener ceros que existen solo como formato visual de Excel, convertí esas celdas a texto en el libro primero.
+
+Todo ocurre en el navegador: SheetJS lee Excel en un Worker y DuckDB-Wasm escribe Parquet. La generación necesita memoria para el Excel/CSV intermedio y el Parquet descargable; tiene límites más estrictos que consultar un archivo Parquet por rangos. No se garantiza convertir archivos de tamaño arbitrario. Los archivos originales no se modifican. El guardado automático depende de la configuración del navegador; el enlace de descarga queda disponible como alternativa mientras permanezca abierta la página.
+
+SheetJS se instala desde el tarball oficial fijado en el lockfile y se incluye en el build, sin peticiones a su CDN durante el uso. `npm test` incluye conversiones CSV, XLSX y XLS, fechas, Unicode, texto con ceros iniciales, errores y comparación de tamaños.
+
 ## Consultas SQL
 
 Después de abrir un archivo, elegí **SQL**. `SELECT` y `FROM parquet` quedan fijos: en **Columnas SQL** escribí `*`, una lista de columnas o expresiones; en **Cláusulas SQL** escribí, por ejemplo:

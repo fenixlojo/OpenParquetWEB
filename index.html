@@ -18,7 +18,10 @@
         <h1>Explorá tus datos.</h1>
         <p style="margin: 0">Abrí un Parquet y conocé lo que hay adentro.</p>
       </div>
-      <button id="open" class="primary">＋ Abrir archivo</button>
+      <div class="top-actions">
+        <button id="open" class="primary">＋ Abrir archivo</button
+        ><button id="generate">⇄ Generar Parquet</button>
+      </div>
     </div>
     <input id="file" type="file" multiple hidden />
     <div class="drop" id="drop">
@@ -32,6 +35,14 @@
       </p>
     </div>
     <div id="status" role="status" aria-live="polite"></div>
+    <section
+      id="conversionResult"
+      class="conversion-result hidden"
+      aria-live="polite"
+    >
+      <strong id="conversionResultText"></strong
+      ><a id="conversionResultDownload">Descargar Parquet de nuevo</a>
+    </section>
     <section id="content" class="hidden">
       <div class="filebar">
         <span class="logo">▤</span>
@@ -121,6 +132,7 @@ SELECT * FROM parquet</pre>
       </p>
     </section>
   </main>
+<footer class="app-footer"><span>© 2026 Santiago Gonzalez Lojo</span><span aria-hidden="true">·</span><a href="https://github.com/fenixlojo" target="_blank" rel="noopener noreferrer">GitHub</a></footer>
   <dialog
     id="detail"
     style="
@@ -142,6 +154,62 @@ SELECT * FROM parquet</pre>
         padding: 20px;
       "
     ></pre>
+  </dialog>
+  <dialog
+    id="convertDialog"
+    aria-labelledby="convertTitle"
+    class="convert-dialog"
+  >
+    <h2 id="convertTitle">Generar Parquet</h2>
+    <p>Convertí CSV o una hoja de Excel a Parquet comprimido.</p>
+    <label class="convert-field"
+      >Archivo de origen<input
+        type="file"
+        id="convertFile"
+        accept=".csv,.tsv,.xlsx,.xls,.xlsm"
+    /></label>
+    <label id="sheetLabel" class="convert-field hidden"
+      >Hoja de Excel<select
+        id="convertSheet"
+        aria-label="Hoja de Excel"
+      ></select
+    ></label>
+    <label id="encodingLabel" class="convert-field"
+      >Codificación del CSV<select id="convertEncoding">
+        <option value="utf-8">UTF-8</option>
+        <option value="windows-1252">Windows-1252 (Excel antiguo)</option>
+      </select></label
+    >
+    <label class="convert-check"
+      ><input id="convertHeader" type="checkbox" checked /> La primera fila
+      contiene los nombres de columnas</label
+    >
+    <label class="convert-check"
+      ><input id="convertText" type="checkbox" /> Conservar todas las columnas
+      como texto</label
+    >
+    <p class="hint">
+      El separador del CSV se detecta automáticamente. Si necesitás conservar
+      identificadores como texto, marcá la opción anterior. En Excel se usan los
+      valores guardados de las fórmulas; no se recalculan. Cada hoja genera un
+      archivo independiente.
+    </p>
+    <progress
+      id="convertProgress"
+      max="4"
+      value="0"
+      aria-label="Avance de la conversión por etapas"
+    ></progress>
+    <p id="convertStatus" role="status" aria-live="polite">
+      Elegí un archivo para empezar.
+    </p>
+    <p id="convertSummary"></p>
+    <a id="convertDownload" class="hidden">Descargar Parquet</a>
+    <div class="convert-actions">
+      <button id="convertRun" class="primary" disabled>
+        Generar y descargar</button
+      ><button id="convertClose">Cerrar</button>
+    </div>
   </dialog>
   <script type="module" src="/src/main.js"></script>
 </html>

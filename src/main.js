@@ -1,3 +1,9 @@
+import { initConverter } from "./conversion-ui.js";
+import {
+  inspectSource,
+  convertSource,
+  discardSource,
+} from "./convert-adapter.js";
 import "./style.css";
 import { buildQuery } from "./sql.js";
 import { openFile, readRows, closeFile } from "./engine.js";
@@ -261,7 +267,14 @@ $("next").onclick = () => {
 };
 
 function setOpening(value) {
-  for (const id of ["open", "choose", "another", "closeFile", "files"])
+  for (const id of [
+    "open",
+    "choose",
+    "another",
+    "closeFile",
+    "files",
+    "generate",
+  ])
     $(id).disabled = value;
 }
 $("closeFile").onclick = async () => {
@@ -327,3 +340,23 @@ for (const id of ["sqlColumns", "sqlClauses"])
       runSql();
     }
   };
+
+initConverter({
+  inspect: inspectSource,
+  convert: convertSource,
+  discard: discardSource,
+  setBusy: (value) => {
+    busy += value ? 1 : -1;
+    setOpening(busy > 0);
+  },
+  onOpen: async (result) => {
+    await add(
+      result.info ||
+        (await openFile(
+          new File([result.blob], result.name, {
+            type: "application/vnd.apache.parquet",
+          }),
+        )),
+    );
+  },
+});

@@ -22,6 +22,12 @@ Verificaciones de proyecto: `npm run build`, comprobación de sintaxis de los m�
 
 No se realizó un despliegue público ni se verificó todavía en Safari, Firefox o dispositivos móviles reales. No se garantizan archivos de tamaño arbitrario; el rendimiento depende del navegador, memoria, tipos y operaciones consultadas.
 
+## Generación de Parquet
+
+Se agregaron seis pruebas de conversión WASM y cinco de API Python. Los conjuntos completos tienen once pruebas en Web (`npm test`) y doce en Python (`python -m unittest -v test_conversion test_sql`). Cubren delimitadores CSV, Unicode, campos entrecomillados con saltos de línea, inferencia de tipos, CSV sin encabezado, conservación de ceros como texto, Windows-1252 en Python, XLSX/XLS, selección de hoja, fechas, datos vacíos, fórmulas sin resultados y archivos mal formados. Se verifica la lectura del Parquet resultante y se comparan tamaños reales, incluidos resultados mayores que el original. En Python se comprueba que los archivos generados se puedan descargar incluso después de cerrarlos en el visor.
+
+Prueba de producción en Chromium con CSP: un CSV de 12.000 filas pasó de 264.026 bytes a un Parquet de 12.801 bytes (95,2 % de ahorro), se descargó a la carpeta de descargas y se abrió automáticamente. Un XLSX de dos hojas permitió elegir Personas y generó un Parquet de dos filas con nombres Unicode y fechas correctas. En la interfaz Python se comprobó la selección de hoja del mismo XLSX, la descarga real y la apertura automática de sus dos filas. También se verificó XLS mediante el motor Python. Los archivos de prueba son sintéticos y están excluidos del deploy.
+
 ## Editor SQL
 
 Agregada la pestaña SQL a Web y Python. `npm test` ejecuta cinco pruebas con el motor WASM real: filtro con backticks, precisión de BIGINT, paginación y orden numérico, agrupación con HAVING y LIMIT, resultados vacíos, literales con apóstrofos y rechazo de otras fuentes o múltiples sentencias. La API Python tiene siete pruebas equivalentes y verificaciones de acceso a archivos y módulos estáticos (`python -m unittest -v test_sql`).
