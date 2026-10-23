@@ -1,0 +1,17 @@
+{
+  "name": "openparquet-web",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/prepare-duckdb.mjs && vite --host 127.0.0.1",
+    "build": "node scripts/prepare-duckdb.mjs && vite build && node scripts/netlify-headers.mjs",
+    "preview": "vite preview --host 127.0.0.1"
+  },
+  "dependencies": {
+    "@duckdb/duckdb-wasm": "^1.30.0"
+  },
+  "devDependencies": {
+    "vite": "^7.0.0"
+  }
+}

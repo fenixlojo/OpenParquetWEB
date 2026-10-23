@@ -1,0 +1,7 @@
+node_modules/
+dist/
+public/duckdb/
+.netlify/
+*.parquet
+*.parq
+test-results/
