@@ -1,4 +1,5 @@
 import "./style.css";
+import { buildQuery } from "./sql.js";
 import { openFile, readRows, closeFile } from "./engine.js";
 
 const $ = (id) => document.getElementById(id),
@@ -12,6 +13,7 @@ let current,
   view = "data",
   request = 0,
   busy = 0;
+let appliedSql = { projection: "*", clauses: "" };
 const el = (tag, text) => {
   const e = document.createElement(tag);
   if (text !== undefined) e.textContent = text;
@@ -36,6 +38,12 @@ function activate(info) {
   $("dataTab").classList.add("active");
   $("schemaTab").classList.remove("active");
   $("search").classList.remove("hidden");
+  $("sqlTab").classList.remove("active");
+  $("sqlPanel").classList.add("hidden");
+  appliedSql = { projection: "*", clauses: "" };
+  $("sqlColumns").value = "*";
+  $("sqlClauses").value = "";
+  $("sqlPreview").textContent = "SELECT * FROM parquet";
   current = info;
   offset = 0;
   sort = "";
@@ -99,7 +107,13 @@ $("drop").ondrop = (e) => {
 $("files").onchange = () =>
   activate(opened.find((f) => f.id === $("files").value));
 function setView(v) {
+  clearTimeout(timer);
   view = v;
+  offset = 0;
+  sort = "";
+  desc = false;
+  $("sqlPanel").classList.toggle("hidden", v !== "sql");
+  $("sqlTab").classList.toggle("active", v === "sql");
   $("dataTab").classList.toggle("active", v === "data");
   $("schemaTab").classList.toggle("active", v === "schema");
   $("search").classList.toggle("hidden", v !== "data");
@@ -107,6 +121,7 @@ function setView(v) {
 }
 $("dataTab").onclick = () => setView("data");
 $("schemaTab").onclick = () => setView("schema");
+$("sqlTab").onclick = () => setView("sql");
 function cellValue(v) {
   return v === null
     ? "NULL"
@@ -149,7 +164,8 @@ async function load() {
       id: current.id,
       limit: $("limit").value,
       offset,
-      search: $("search").value,
+      search: view === "data" ? $("search").value : "",
+      ...(view === "sql" ? { sqlMode: "1", ...appliedSql } : {}),
       sort,
       desc: desc ? "1" : "0",
     });
@@ -157,7 +173,7 @@ async function load() {
     if (token !== request) return;
     total = result.total;
     hr.append(el("th", "#"));
-    current.columns.forEach((c) => {
+    (result.columns || current.columns).forEach((c) => {
       let th = el("th"),
         b = el(
           "button",
@@ -213,7 +229,9 @@ async function load() {
     $("table").replaceChildren(
       el(
         "div",
-        "No se pudieron consultar los datos. Probá una búsqueda más acotada o un archivo más pequeño.",
+        view === "sql"
+          ? "No se pudo ejecutar la consulta. Revisá las columnas y la sintaxis indicada en el mensaje."
+          : "No se pudieron consultar los datos. Probá una búsqueda más acotada o un archivo más pequeño.",
       ),
     );
     status(e.message, true);
@@ -273,3 +291,39 @@ window.addEventListener("drop", (e) => {
   e.preventDefault();
   if (!e.target.closest("#drop")) upload(Array.from(e.dataTransfer.files));
 });
+
+async function runSql() {
+  try {
+    const next = {
+      projection: $("sqlColumns").value,
+      clauses: $("sqlClauses").value,
+    };
+    const query = buildQuery(next.projection, next.clauses);
+    appliedSql = next;
+    $("sqlPreview").textContent = query;
+    offset = 0;
+    sort = "";
+    desc = false;
+    await load();
+  } catch (error) {
+    status(error.message, true);
+  }
+}
+$("runSql").onclick = runSql;
+$("resetSql").onclick = () => {
+  $("sqlColumns").value = "*";
+  $("sqlClauses").value = "";
+  runSql();
+};
+$("countSql").onclick = () => {
+  $("sqlColumns").value = "COUNT(*) AS total";
+  $("sqlClauses").value = "";
+  runSql();
+};
+for (const id of ["sqlColumns", "sqlClauses"])
+  $(id).onkeydown = (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+      event.preventDefault();
+      runSql();
+    }
+  };

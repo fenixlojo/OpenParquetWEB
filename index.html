@@ -50,7 +50,8 @@
         <div class="toolbar">
           <div class="tabs">
             <button class="active" id="dataTab">Datos</button
-            ><button id="schemaTab">Estructura</button>
+            ><button id="schemaTab">Estructura</button
+            ><button id="sqlTab">SQL</button>
           </div>
           <input
             class="search"
@@ -60,6 +61,46 @@
             aria-label="Buscar en los datos"
           />
         </div>
+        <section
+          id="sqlPanel"
+          class="sql-panel hidden"
+          aria-label="Consulta SQL"
+        >
+          <div class="sql-title">
+            <strong>Consulta SQL</strong
+            ><span class="hint">Solo lectura · tabla fija: parquet</span>
+          </div>
+          <div class="sql-select">
+            <code>SELECT</code
+            ><input
+              id="sqlColumns"
+              aria-label="Columnas SQL"
+              value="*"
+              spellcheck="false"
+            /><code>FROM parquet</code>
+          </div>
+          <textarea
+            id="sqlClauses"
+            aria-label="Cláusulas SQL"
+            rows="3"
+            spellcheck="false"
+            placeholder="WHERE persona_id = 42325&#10;ORDER BY persona_id DESC"
+          ></textarea>
+          <div class="sql-actions">
+            <button id="runSql" class="primary">▶ Ejecutar consulta</button
+            ><button id="resetSql">Ver todo</button
+            ><button id="countSql">Contar filas</button
+            ><span class="hint">Ctrl / ⌘ + Enter para ejecutar</span>
+          </div>
+          <p class="hint">
+            Ejemplo: WHERE persona_id = 42325 · AND, OR, LIKE, IN, BETWEEN, IS
+            NULL, GROUP BY, HAVING, ORDER BY y LIMIT. SQL de DuckDB; las
+            funciones propias de MySQL pueden variar. Los identificadores con
+            espacios admiten comillas dobles o backticks.
+          </p>
+          <pre id="sqlPreview" aria-label="Consulta aplicada">
+SELECT * FROM parquet</pre>
+        </section>
         <div class="tablewrap" id="table"></div>
         <footer>
           <span id="range"></span>

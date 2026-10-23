@@ -22,4 +22,10 @@ Verificaciones de proyecto: `npm run build`, comprobación de sintaxis de los m�
 
 No se realizó un despliegue público ni se verificó todavía en Safari, Firefox o dispositivos móviles reales. No se garantizan archivos de tamaño arbitrario; el rendimiento depende del navegador, memoria, tipos y operaciones consultadas.
 
+## Editor SQL
+
+Agregada la pestaña SQL a Web y Python. `npm test` ejecuta cinco pruebas con el motor WASM real: filtro con backticks, precisión de BIGINT, paginación y orden numérico, agrupación con HAVING y LIMIT, resultados vacíos, literales con apóstrofos y rechazo de otras fuentes o múltiples sentencias. La API Python tiene siete pruebas equivalentes y verificaciones de acceso a archivos y módulos estáticos (`python -m unittest -v test_sql`).
+
+Se verificó en la interfaz de ambas versiones `SELECT * FROM parquet WHERE persona_id = 42325` sobre un archivo sintético de 230 filas: devolvió una fila con el identificador esperado y un valor nulo. En Web también se verificó el botón Contar filas y el encabezado dinámico `total`. El nuevo build mantiene la configuración de Netlify y los encabezados CSP.
+
 Para repetir las pruebas, usar archivos sintéticos con estos tipos, ejecutar `npm ci`, `npm run build`, `npm run preview`, seleccionar los archivos y recorrer estos casos. Los archivos y capturas de prueba locales están en `test-results/`, excluido de Git y del deploy.

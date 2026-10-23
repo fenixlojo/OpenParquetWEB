@@ -44,6 +44,22 @@ El primer build descarga la extensión Parquet desde `extensions.duckdb.org`, en
 - Celdas completas en un diálogo accesible con clic o Enter.
 - Valores formateados por DuckDB para conservar enteros grandes, decimales y fechas; estructuras anidadas se muestran como texto de DuckDB.
 
+## Consultas SQL
+
+Después de abrir un archivo, elegí **SQL**. `SELECT` y `FROM parquet` quedan fijos: en **Columnas SQL** escribí `*`, una lista de columnas o expresiones; en **Cláusulas SQL** escribí, por ejemplo:
+
+```sql
+WHERE persona_id = 42325
+```
+
+La consulta aplicada será `SELECT * FROM parquet WHERE persona_id = 42325`. Ejecutá con el botón o Ctrl / Cmd + Enter. La columna del ejemplo debe existir en el archivo. Para agrupar: columnas `persona_id, COUNT(*) AS cantidad` y cláusulas `GROUP BY persona_id HAVING COUNT(*) > 1 ORDER BY cantidad DESC LIMIT 20`.
+
+El resultado tiene sus propias columnas, tipos y paginación. Editar el texto no cambia el resultado hasta ejecutar; cambiar de archivo reinicia el editor. **Ver todo** restaura `SELECT * FROM parquet` y **Contar filas** ejecuta `SELECT COUNT(*) AS total FROM parquet`. La pestaña **Datos** conserva la exploración habitual del archivo completo.
+
+Es SQL de DuckDB, con soporte para la sintaxis común de filtros de MySQL y conversión de identificadores entre backticks. No es un servidor MySQL ni una emulación completa de su dialecto. Se admiten SELECT, funciones del motor, filtros, agregaciones, GROUP BY, HAVING, ORDER BY y LIMIT/OFFSET. No se admiten subconsultas, JOIN, UNION, otras tablas, escrituras, múltiples sentencias, comentarios ni escapes con barra invertida. Usá comillas simples para texto y duplicalas para un apóstrofo (`'O''Brien'`); identificadores especiales requieren comillas dobles o backticks. No agregues punto y coma. Las consultas no modifican el Parquet.
+
+Pruebas del motor SQL WASM: `npm test`. No requiere Python ni acceso a Internet una vez instaladas las dependencias.
+
 ## Privacidad y límites
 
 Los archivos seleccionados se registran con la API FileReader de DuckDB-Wasm. No se envían al hosting, no se almacenan en localStorage ni se agregan al repositorio. Al recargar se pierde la selección; los archivos originales no se modifican. No hay analítica ni peticiones de datos a terceros.

@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "node scripts/prepare-duckdb.mjs && vite --host 127.0.0.1",
     "build": "node scripts/prepare-duckdb.mjs && vite build && node scripts/netlify-headers.mjs",
-    "preview": "vite preview --host 127.0.0.1"
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "node --test test/*.test.mjs"
   },
   "dependencies": {
     "@duckdb/duckdb-wasm": "^1.30.0"

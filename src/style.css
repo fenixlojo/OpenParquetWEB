@@ -321,3 +321,74 @@ dialog::backdrop {
 #closeFile {
   margin-left: auto;
 }
+
+.sql-panel {
+  padding: 18px;
+  border-bottom: 1px solid var(--line);
+  background: #151b1e;
+}
+.sql-title,
+.sql-actions,
+.sql-select {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.sql-title {
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.sql-select {
+  flex-wrap: nowrap;
+}
+.sql-select code {
+  color: var(--accent);
+  white-space: nowrap;
+  font:
+    14px ui-monospace,
+    Consolas,
+    monospace;
+}
+.sql-select input {
+  flex: 1;
+  width: 100%;
+  font-family: ui-monospace, Consolas, monospace;
+}
+.sql-panel textarea {
+  display: block;
+  width: 100%;
+  resize: vertical;
+  min-height: 85px;
+  max-height: 350px;
+  background: #101619;
+  color: #edf2f4;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 12px;
+  margin: 12px 0;
+  font:
+    14px/1.6 ui-monospace,
+    Consolas,
+    monospace;
+}
+.sql-panel pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: #101619;
+  padding: 12px;
+  border-radius: 7px;
+  margin-bottom: 0;
+  color: var(--accent);
+}
+.sql-panel:focus-within {
+  border-color: #52604c;
+}
+@media (max-width: 600px) {
+  .sql-select {
+    flex-wrap: wrap;
+  }
+  .sql-select input {
+    flex-basis: 70%;
+  }
+}

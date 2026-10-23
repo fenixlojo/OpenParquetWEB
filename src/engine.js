@@ -1,4 +1,5 @@
 import * as duckdb from "@duckdb/duckdb-wasm";
+import { executeSelect } from "./sql.js";
 
 const files = new Map();
 let initialization;
@@ -72,13 +73,11 @@ export function openFile(file) {
       );
       const source = `read_parquet(${literal(filename)})`;
       const schema = await connection.query(`DESCRIBE SELECT * FROM ${source}`);
-      const columns = schema
-        .toArray()
-        .map((row) => ({
-          name: row.column_name,
-          type: row.column_type,
-          nullable: row.null,
-        }));
+      const columns = schema.toArray().map((row) => ({
+        name: row.column_name,
+        type: row.column_type,
+        nullable: row.null,
+      }));
       const count = await connection.query(
         `SELECT count(*) AS n FROM ${source}`,
       );
@@ -110,6 +109,9 @@ export function readRows(args) {
     const { source, info } = entry;
     const limit = Math.min(250, Math.max(1, Number(args.limit) || 100));
     const offset = Math.max(0, Math.floor(Number(args.offset) || 0));
+    if (args.sqlMode === "1") {
+      return executeSelect(connection, source, args);
+    }
     const search = String(args.search || "");
     const where = search
       ? " WHERE " +
